@@ -1,5 +1,6 @@
 package com.example.mitchel.a436project;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +10,7 @@ import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,6 +23,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Objects;
+
+@TargetApi(19)
 public class MainActivity extends AppCompatActivity {
     static final int SIGN_IN_REQUEST_CODE = 1;
 
@@ -48,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     .show();
 
             // Load chat room contents
-            displayChatMessages();
+            displayMessages();
         }
         FloatingActionButton fab =
                 (FloatingActionButton)findViewById(R.id.fab);
@@ -66,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         .setValue(new ChatMessage(input.getText().toString(),
                                 FirebaseAuth.getInstance()
                                         .getCurrentUser()
-                                        .getDisplayName())
+                                        .getDisplayName(), "chat")
                         );
 
                 // Clear the input
@@ -76,33 +81,75 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void displayMessages() {
+        displayChatMessages();
+    }
+
     private void displayChatMessages() {
-        ListView listOfMessages = (ListView)findViewById(R.id.list_of_messages);
+        ListView chatMessages = (ListView) findViewById(R.id.list_of_chat_messages);
+
         FirebaseListAdapter<ChatMessage> adapter;
+
 
         adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.message,
                 FirebaseDatabase.getInstance().getReference()) {
             @Override
-            protected void populateView(View v, ChatMessage model,int position) {
-                // Get references to the views of message.xml
-                TextView messageText = (TextView)v.findViewById(R.id.message_text);
-                TextView messageUser = (TextView)v.findViewById(R.id.message_user);
-                TextView messageTime = (TextView)v.findViewById(R.id.message_time);
-
+            protected void populateView(View v, ChatMessage model, int position) {
+                // Get references to the views of message
+                TextView messageText = (TextView) v.findViewById(R.id.message_text);
+                TextView messageUser = (TextView) v.findViewById(R.id.message_user);
+                TextView messageTime = (TextView) v.findViewById(R.id.message_time);
+                Button acceptButton = (Button) v.findViewById(R.id.button_challenge);
                 // Set their text
                 messageText.setText(model.getMessageText());
                 messageUser.setText(model.getMessageUser());
+
+                String currType= model.getMessageType();
+
+                if(Objects.equals("challenge",currType))
+                {
+                    acceptButton.setText("Accept Challenge");
+                    acceptButton.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    acceptButton.setVisibility(View.GONE);
+                }
 
                 // Format the date before showing it
                 messageTime.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)",
                         model.getMessageTime()));
             }
-
-
         };
 
-        listOfMessages.setAdapter(adapter);
+        chatMessages.setAdapter(adapter);
     }
+
+//    private void displayChatMessages(){
+//            ListView listOfMessages = (ListView)findViewById(R.id.list_of_messages);
+//            FirebaseListAdapter<ChallengeMessage> adapter;
+//
+//            adapter = new FirebaseListAdapter<ChallengeMessage>(this, ChallengeMessage.class, R.layout.message,
+//                    FirebaseDatabase.getInstance().getReference()) {
+//                @Override
+//                protected void populateView(View v, ChallengeMessage model, int position) {
+//
+//                    // Get references to the views of message.xml             TextView messageText = (TextView) v.findViewById(R.id.message_challenge_text);
+//                    TextView messageUser = (TextView) v.findViewById(R.id.message_challenge_user);
+//                    TextView messageTime = (TextView) v.findViewById(R.id.message_challenge_time);
+//
+//                    // Set their text
+//                    messageText.setText(model.getMessageText());
+//                    messageUser.setText(model.getMessageUser());
+//
+//                    // Format the date before showing it
+//                    messageTime.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)",
+//                            model.getMessageTime()));
+//                }
+//            };
+//
+//            listOfMessages.setAdapter(adapter);
+//    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
@@ -136,7 +183,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.menu_sign_out) {
+        if(item.getItemId() == R.id.menu_create_challenge) {
+            FirebaseDatabase.getInstance()
+                    .getReference()
+                    .push()
+                    .setValue(new ChatMessage(FirebaseAuth.getInstance()
+                                    .getCurrentUser()
+                                    .getDisplayName() + " created an OPEN CHALLENGE in TIC-TAC-TOE!",
+                    FirebaseAuth.getInstance()
+                            .getCurrentUser()
+                            .getDisplayName(), "challenge")
+                        );
+
+        }
+        else if(item.getItemId() == R.id.menu_sign_out) {
             AuthUI.getInstance().signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -155,5 +215,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void startGame(View view) {
+        setContentView(R.layout.message);
 
+        Button acceptButton = (Button)findViewById(R.id.button_challenge);
+//        TextView messageUser = (TextView) view.findViewById(R.id.message_user);
+//
+//        String userSender = (String)messageUser.getText();
+//        String userReceiver = FirebaseAuth.getInstance()
+//                .getCurrentUser()
+//                .getDisplayName();
+
+        acceptButton.setClickable(false);
+        acceptButton.setText((CharSequence)"SUCCESS");
+
+        acceptButton.refreshDrawableState();
+
+        //tell sender to create game and create game for acceptor
+
+    }
 }

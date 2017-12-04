@@ -8,10 +8,12 @@ public class ChatMessage {
     private String messageText;
     private String messageUser;
     private long messageTime;
+    private String messageType;
 
-    public ChatMessage(String messageText, String messageUser) {
+    public ChatMessage(String messageText, String messageUser, String messageType) {
         this.messageText = messageText;
         this.messageUser = messageUser;
+        this.messageType = messageType;
 
         // Initialize to current time
         messageTime = new Date().getTime();
@@ -44,4 +46,9 @@ public class ChatMessage {
     public void setMessageTime(long messageTime) {
         this.messageTime = messageTime;
     }
+
+    public String getMessageType() {
+        return messageType;
+    }
+
 }
