@@ -38,6 +38,7 @@ dependencies {
 
     compile 'com.google.firebase:firebase-auth:10.2.0'
 
+
     compile 'com.firebaseui:firebase-ui:1.2.0'
     compile 'com.firebaseui:firebase-ui-auth:1.2.0'
 

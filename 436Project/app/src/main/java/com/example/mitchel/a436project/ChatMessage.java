@@ -9,6 +9,7 @@ public class ChatMessage {
     private String messageUser;
     private long messageTime;
     private String messageType;
+    private String senderAddress;
 
     public ChatMessage(String messageText, String messageUser, String messageType) {
         this.messageText = messageText;
@@ -49,6 +50,12 @@ public class ChatMessage {
 
     public String getMessageType() {
         return messageType;
+    }
+
+    public void setSenderAddress(String senderAddress) { this.senderAddress = senderAddress; }
+
+    public String getSenderAddress() {
+        return senderAddress;
     }
 
 }

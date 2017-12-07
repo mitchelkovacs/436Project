@@ -38,5 +38,6 @@
         android:layout_below="@+id/message_text"
         android:onClick="startGame"
         android:text="Accept Challenge"
+        android:hint=""
         android:visibility="visible" />
 </RelativeLayout>

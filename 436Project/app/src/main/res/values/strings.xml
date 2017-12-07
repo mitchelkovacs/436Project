@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">436Project</string>
+
+    <string name="title_activity_tic_tac_toe_game">TicTacToeGame</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
