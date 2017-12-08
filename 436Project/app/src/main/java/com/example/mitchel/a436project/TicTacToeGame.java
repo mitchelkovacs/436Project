@@ -6,6 +6,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -47,10 +49,11 @@ public class TicTacToeGame extends AppCompatActivity {
         Intent intent = getIntent();
         String type = intent.getStringExtra("type");
         if (type.equals("server")) {
+            turn(false, game);
             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(" ");
             marker = "X";
             x = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-            o= "";
+            o = "";
             for (int i = 1; i < 10; i++) {
                 FirebaseDatabase.getInstance()
                         .getReference().child("buttons")
@@ -63,22 +66,22 @@ public class TicTacToeGame extends AppCompatActivity {
             marker = "O";
             o = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
             x = "";
-            findViewById(R.id.Button00).setClickable(true);
-            findViewById(R.id.Button01).setClickable(true);
-            findViewById(R.id.Button02).setClickable(true);
-            findViewById(R.id.Button10).setClickable(true);
-            findViewById(R.id.Button11).setClickable(true);
-            findViewById(R.id.Button12).setClickable(true);
-            findViewById(R.id.Button20).setClickable(true);
-            findViewById(R.id.Button21).setClickable(true);
-            findViewById(R.id.Button22).setClickable(true);
+            turn(true, game);
         }
 
         FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                TextView win = (TextView)findViewById(R.id.textView3);
+                TextView win = (TextView) findViewById(R.id.textView3);
                 win.setText(dataSnapshot.getValue(String.class));
+                if (!Objects.equals(dataSnapshot.getValue(String.class), " ")) {
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            finish();
+                        }
+                    }, 3000); //player has either left or won the game, give 3 seconds to look at display message then kick players
+                }
             }
 
             @Override
@@ -107,18 +110,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button1.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button1.setClickable(false);
                     game[0][0] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button1.setClickable(true);
@@ -152,18 +164,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button2.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button2.setClickable(false);
                     game[0][1] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button2.setClickable(true);
@@ -198,18 +219,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button3.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button3.setClickable(false);
                     game[0][2] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button3.setClickable(true);
@@ -244,18 +274,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button4.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button4.setClickable(false);
                     game[1][0] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button4.setClickable(true);
@@ -290,18 +329,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button5.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button5.setClickable(false);
                     game[1][1] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button5.setClickable(true);
@@ -336,18 +384,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button6.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button6.setClickable(false);
                     game[1][2] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button6.setClickable(true);
@@ -383,18 +440,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button7.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button7.setClickable(false);
                     game[2][0] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button7.setClickable(true);
@@ -429,18 +495,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button8.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button8.setClickable(false);
                     game[2][1] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button8.setClickable(true);
@@ -475,18 +550,27 @@ public class TicTacToeGame extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 button9.setText(dataSnapshot.getValue(String.class));
+                if((Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(false, game);
+                }
+                else if((Objects.equals("O", dataSnapshot.getValue(String.class)) && marker == "X") || (Objects.equals("X", dataSnapshot.getValue(String.class)) && marker == "O")){
+                    turn(true, game);
+                }
                 if (!Objects.equals(" ", dataSnapshot.getValue(String.class))) {
                     button9.setClickable(false);
                     game[2][2] = dataSnapshot.getValue(String.class);
                     if (Objects.equals(winner(game), "X")) {
-                        if(x != "") {
+                        if (x != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                         }
                     }
                     if (Objects.equals(winner(game), "O")) {
-                        if(o != "") {
+                        if (o != "") {
                             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                         }
+                    }
+                    if (Objects.equals(winner(game), "Draw")) {
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");
                     }
                 } else {
                     button9.setClickable(true);
@@ -555,6 +639,35 @@ public class TicTacToeGame extends AppCompatActivity {
 //        }
     }
 
+    public void turn(boolean turn, String gameState[][]) {
+        if (Objects.equals(gameState[0][0], " ")) {
+            findViewById(R.id.Button00).setClickable(turn);
+        }
+        if (Objects.equals(gameState[0][1], " ")) {
+            findViewById(R.id.Button01).setClickable(turn);
+        }
+        if (Objects.equals(gameState[0][2], " ")) {
+            findViewById(R.id.Button02).setClickable(turn);
+        }
+        if (Objects.equals(gameState[1][0], " ")) {
+            findViewById(R.id.Button10).setClickable(turn);
+        }
+        if (Objects.equals(gameState[1][1], " ")) {
+            findViewById(R.id.Button11).setClickable(turn);
+        }
+        if (Objects.equals(gameState[1][2], " ")) {
+            findViewById(R.id.Button12).setClickable(turn);
+        }
+        if (Objects.equals(gameState[2][0], " ")) {
+            findViewById(R.id.Button20).setClickable(turn);
+        }
+        if (Objects.equals(gameState[2][1], " ")) {
+            findViewById(R.id.Button21).setClickable(turn);
+        }
+        if (Objects.equals(gameState[2][2], " ")) {
+            findViewById(R.id.Button22).setClickable(turn);
+        }
+    }
 
     public String winner(String gameState[][]) {
         //first check all rows
@@ -659,12 +772,39 @@ public class TicTacToeGame extends AppCompatActivity {
                 }
             }
         }
+        String draw = "Draw";
+        //check for draw
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (Objects.equals(gameState[i][j], " ")) {
+                    draw = " ";
+                }
+            }
+        }
 
-
-        //didnt return true above, so no winners yet
-        return " ";
+        //didnt return X or O above, so no winners yet
+        return draw;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) // Press Back Icon
+        {
+            FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Game Terminated");
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Game Terminated");
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
     /*Receiver - Runnable thread that listens for connections to game
      */

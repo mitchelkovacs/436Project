@@ -47,6 +47,8 @@
         android:layout_above="@+id/textInputLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:transcriptMode="alwaysScroll"
+        android:stackFromBottom="true"
         android:divider="@android:color/transparent"
         android:dividerHeight="16dp" />
 

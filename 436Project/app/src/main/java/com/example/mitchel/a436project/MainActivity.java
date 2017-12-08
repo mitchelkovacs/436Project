@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     String ip;
     String type = "";
     String txt = "";
-
+    boolean gameInSession = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +112,29 @@ public class MainActivity extends AppCompatActivity {
 
                 // Clear the input
                 input.setText("");
+            }
+        });
+
+        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(Objects.equals(dataSnapshot.getValue(String.class), " ") ){
+                    gameInSession = true; //because when the person who creates challenge switches screens, they set winner to " "
+                }
+                else if(Objects.equals(dataSnapshot.getValue(String.class), "Game Terminated")){
+                    gameInSession = false;
+                    //update that message as clicked
+                    FirebaseDatabase.getInstance().getReference().child("messages").child("Challenge").child("clicked").setValue(true);
+                }
+                else{
+                    gameInSession = false; //either will be x Wins! or Game ended(when someone leaves the game)
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
@@ -222,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.menu_create_challenge) {
+        if(item.getItemId() == R.id.menu_create_challenge && !gameInSession) {
             ChatMessage newChallenge = new ChatMessage(FirebaseAuth.getInstance()
                     .getCurrentUser()
                     .getDisplayName() + " created an OPEN CHALLENGE in TIC-TAC-TOE!",
@@ -243,6 +266,12 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("type","server");
             startActivity(intent);
 
+        }
+        else if(item.getItemId() == R.id.menu_create_challenge && gameInSession) {
+            Toast.makeText(this,
+                    "Game Room Busy!",
+                    Toast.LENGTH_LONG)
+                    .show();
         }
         else if(item.getItemId() == R.id.menu_sign_out) {
             AuthUI.getInstance().signOut(this)
