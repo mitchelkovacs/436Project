@@ -33,7 +33,10 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -44,9 +47,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.Objects;
 import java.net.DatagramSocket;
 
@@ -57,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseListAdapter<ChatMessage> adapter = null;
     String ip;
     String type = "";
+    String txt = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 // Read the input field and push a new instance
                 // of ChatMessage to the Firebase database
                 FirebaseDatabase.getInstance()
-                        .getReference()
+                        .getReference().child("messages")
                         .push()
                         .setValue(new ChatMessage(input.getText().toString(),
                                 FirebaseAuth.getInstance()
@@ -118,25 +125,55 @@ public class MainActivity extends AppCompatActivity {
         ListView chatMessages = (ListView) findViewById(R.id.list_of_chat_messages);
 
         adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.message,
-                FirebaseDatabase.getInstance().getReference()) {
+                FirebaseDatabase.getInstance().getReference().child("messages")) {
             @Override
-            protected void populateView(View v, ChatMessage model, int position) {
+            protected void populateView(View v, final ChatMessage model, int position) {
                 // Get references to the views of message
                 TextView messageText = (TextView) v.findViewById(R.id.message_text);
                 TextView messageUser = (TextView) v.findViewById(R.id.message_user);
                 TextView messageTime = (TextView) v.findViewById(R.id.message_time);
-                Button acceptButton = (Button) v.findViewById(R.id.button_challenge);
+                final Button acceptButton = (Button) v.findViewById(R.id.button_challenge);
+
                 // Set their text
                 messageText.setText(model.getMessageText());
                 messageUser.setText(model.getMessageUser());
 
                 String currType= model.getMessageType();
-
                 if(Objects.equals("challenge",currType))
                 {
-                    acceptButton.setText("Accept Challenge");
                     acceptButton.setVisibility(View.VISIBLE);
                     acceptButton.setHint(model.getSenderAddress());
+                    //when the challenge button is clicked
+                    acceptButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            startGame(acceptButton);
+                            model.click();
+                            //update that message as clicked
+                            FirebaseDatabase.getInstance().getReference().child("messages").child("Challenge").setValue(model);
+                        }
+                    });
+                    FirebaseDatabase.getInstance().getReference().child("messages").child("Challenge").child("clicked").addValueEventListener(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(Objects.equals(true, dataSnapshot.getValue(Boolean.class))) {
+                                acceptButton.setText("Complete");
+                                acceptButton.setClickable(false);
+                            }
+                            else{
+                                acceptButton.setText("Accept Challenge");
+                                acceptButton.setClickable(true);
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
                 }
                 else
                 {
@@ -193,26 +230,18 @@ public class MainActivity extends AppCompatActivity {
                             .getCurrentUser()
                             .getDisplayName(), "challenge");
 
-            try {
-//                final DatagramSocket socket = new DatagramSocket();
-//                socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-//                ip = socket.getLocalAddress().getHostAddress();
-//                WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-//                String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
 
-            } catch (Exception e) {
-
-            }
-
-            newChallenge.setSenderAddress("localhost");
+            newChallenge.setSenderAddress(getIpAddress());
 
             FirebaseDatabase.getInstance()
-                    .getReference()
-                    .push()
+                    .getReference().child("messages")
+                    .child("Challenge")
                     .setValue(newChallenge);
 
-            //CREATE LISTENER THREAD
-            Receiver receiver = new Receiver();
+            //SWITCH VIEW THEN CREATE LISTENER THREAD
+            Intent intent = new Intent(getBaseContext(),TicTacToeGame.class);
+            intent.putExtra("type","server");
+            startActivity(intent);
 
         }
         else if(item.getItemId() == R.id.menu_sign_out) {
@@ -235,101 +264,41 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void startGame(View view) {
-        Button acceptButton = (Button) view;
-        String userReceiver = FirebaseAuth.getInstance()
-                .getCurrentUser()
-                .getDisplayName();
 
-        ip = (String)acceptButton.getHint();
-
-        acceptButton.setClickable(false);
-        acceptButton.setText((CharSequence)"Challenge Accepted by" + userReceiver);
-
-
-       //PUT SOCKETS HERE
-
-        //tell sender to create game and create game for acceptor
-        try {
-            System.out.println("About to create client socket. Host:" + ip);
-
-            Socket clientSocket = new Socket("localhost", 8080);
-
-            System.out.println("Created client socket.");
-
-            clientSocket.close();
-
-            System.out.println("Closed client socket.");
-
-            Intent intent = new Intent(getBaseContext(),TicTacToeGame.class);
-            intent.putExtra("type","client");
-            intent.putExtra("ip", ip);
-            startActivity(intent);
-        } catch(Exception e) {
-            //TODO: handle exceptions
-        }
-
-        acceptButton.setText((CharSequence)"Challenge Completed");
+        Intent intent = new Intent(getBaseContext(),TicTacToeGame.class);
+        intent.putExtra("type","client");
+        intent.putExtra("ip", ip);
+        startActivity(intent);
     }
 
-    /*Receiver - Runnable thread that listens for connections to game
-	 */
-    class Receiver implements Runnable {
-        Thread thread;
-        volatile boolean exit;
+    private String getIpAddress() {
+        String ip = "";
+        try {
+            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
+                    .getNetworkInterfaces();
+            while (enumNetworkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = enumNetworkInterfaces
+                        .nextElement();
+                Enumeration<InetAddress> enumInetAddress = networkInterface
+                        .getInetAddresses();
+                while (enumInetAddress.hasMoreElements()) {
+                    InetAddress inetAddress = enumInetAddress.nextElement();
 
-        /*Receiver(memberId, msgConn) - Initializes receiver and starts receivers thread
-         *	Inputs:
-         *		None
-         *	Outputs:
-         *		None
-         */
-        public Receiver() {
-            thread = new Thread(this);
-            exit = false;
+                    if (inetAddress.isSiteLocalAddress()) {
+                        ip = inetAddress.getHostAddress();
+                    }
 
-            thread.start();
-        }
-
-        /*run() - Initializes receiver and starts receivers thread
-         *	Inputs:
-         *		None
-         *	Outputs:
-         *		Prints chatroom messages to std:out
-         */
-        @Override
-        public void run(){
-            ServerSocket senderSocket = null;
-            try {
-                senderSocket = new ServerSocket(8080);
-                System.out.println("Reached creating server socket, Address:" + ip);
-
-                Socket connectionSocket = senderSocket.accept();
-
-                System.out.println("Reached connecting to client");
-
-                //play game here
-                senderSocket.close();
-
-                Intent intent = new Intent(getBaseContext(),TicTacToeGame.class);
-                intent.putExtra("type","server");
-                startActivity(intent);
-
-                //After game, close connection
-                senderSocket.close();
-            } catch (Exception e) {
-                //TODO: Handle exceptions
+                }
 
             }
+
+        } catch (SocketException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            ip += "Something Wrong! " + e.toString() + "\n";
         }
 
-        /*stop() - Changes receiver.exit to true to close receiver thread
-         *	Inputs:
-         *		None
-         *	Outputs:
-         *		receiver.exit is set to true
-         */
-        public void stop(){
-            exit = true;
-        }
+        return ip;
     }
+
 }

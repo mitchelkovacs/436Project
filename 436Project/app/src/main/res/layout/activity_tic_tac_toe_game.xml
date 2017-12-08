@@ -7,8 +7,9 @@
     android:layout_height="match_parent"
     android:background="#0099cc"
     tools:context="com.example.mitchel.a436project.TicTacToeGame">
-        <ToggleButton
-            android:id="@+id/toggleButton00"
+
+        <Button
+            android:id="@+id/Button00"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -20,79 +21,79 @@
             android:checked="false"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton01"
+        <Button
+            android:id="@+id/Button01"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/toggleButton11"
-            android:layout_toEndOf="@+id/toggleButton00"
-            android:layout_toRightOf="@+id/toggleButton00"
+            android:layout_above="@+id/Button11"
+            android:layout_toEndOf="@+id/Button00"
+            android:layout_toRightOf="@+id/Button00"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton02"
+        <Button
+            android:id="@+id/Button02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/toggleButton01"
-            android:layout_alignBottom="@+id/toggleButton01"
-            android:layout_toEndOf="@+id/toggleButton01"
-            android:layout_toRightOf="@+id/toggleButton01"
+            android:layout_alignBaseline="@+id/Button01"
+            android:layout_alignBottom="@+id/Button01"
+            android:layout_toEndOf="@+id/Button01"
+            android:layout_toRightOf="@+id/Button01"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton10"
+        <Button
+            android:id="@+id/Button10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/toggleButton00"
-            android:layout_alignStart="@+id/toggleButton00"
-            android:layout_below="@+id/toggleButton00"
+            android:layout_alignLeft="@+id/Button00"
+            android:layout_alignStart="@+id/Button00"
+            android:layout_below="@+id/Button00"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton11"
+        <Button
+            android:id="@+id/Button11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/toggleButton12"
-            android:layout_alignBottom="@+id/toggleButton12"
-            android:layout_toEndOf="@+id/toggleButton00"
-            android:layout_toRightOf="@+id/toggleButton00"
+            android:layout_alignBaseline="@+id/Button12"
+            android:layout_alignBottom="@+id/Button12"
+            android:layout_toEndOf="@+id/Button00"
+            android:layout_toRightOf="@+id/Button00"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton12"
+        <Button
+            android:id="@+id/Button12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/toggleButton21"
-            android:layout_toEndOf="@+id/toggleButton01"
-            android:layout_toRightOf="@+id/toggleButton01"
+            android:layout_above="@+id/Button21"
+            android:layout_toEndOf="@+id/Button01"
+            android:layout_toRightOf="@+id/Button01"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton20"
+        <Button
+            android:id="@+id/Button20"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/toggleButton10"
-            android:layout_toLeftOf="@+id/toggleButton21"
-            android:layout_toStartOf="@+id/toggleButton21"
+            android:layout_below="@+id/Button10"
+            android:layout_toLeftOf="@+id/Button21"
+            android:layout_toStartOf="@+id/Button21"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton21"
+        <Button
+            android:id="@+id/Button21"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/toggleButton20"
-            android:layout_alignBottom="@+id/toggleButton20"
-            android:layout_toEndOf="@+id/toggleButton10"
-            android:layout_toRightOf="@+id/toggleButton10"
+            android:layout_alignBaseline="@+id/Button20"
+            android:layout_alignBottom="@+id/Button20"
+            android:layout_toEndOf="@+id/Button10"
+            android:layout_toRightOf="@+id/Button10"
             android:padding="30dp" />
 
-        <ToggleButton
-            android:id="@+id/toggleButton22"
+        <Button
+            android:id="@+id/Button22"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/toggleButton12"
-            android:layout_toEndOf="@+id/toggleButton21"
-            android:layout_toRightOf="@+id/toggleButton21"
+            android:layout_below="@+id/Button12"
+            android:layout_toEndOf="@+id/Button21"
+            android:layout_toRightOf="@+id/Button21"
             android:padding="30dp" />
 
         <TextView
@@ -108,17 +109,20 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/button2"
+            android:layout_below="@+id/Button21"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="28dp"
             android:text="Your turn" />
 
-        <Button
-            android:id="@+id/button2"
+        <TextView
+            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/textView"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="13dp"
-            android:text="Leave game" />
+            android:layout_marginTop="11dp"
+            android:text=" "
+            android:textColor="@android:color/black"
+            android:textSize="32sp"
+            android:visibility="visible" />
+
 </RelativeLayout>

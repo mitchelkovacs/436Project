@@ -10,12 +10,13 @@ public class ChatMessage {
     private long messageTime;
     private String messageType;
     private String senderAddress;
+    private boolean clicked;
 
     public ChatMessage(String messageText, String messageUser, String messageType) {
         this.messageText = messageText;
         this.messageUser = messageUser;
         this.messageType = messageType;
-
+        clicked = false;
         // Initialize to current time
         messageTime = new Date().getTime();
     }
@@ -57,5 +58,9 @@ public class ChatMessage {
     public String getSenderAddress() {
         return senderAddress;
     }
+
+    public void click(){ clicked = true; }
+
+    public boolean isClicked(){return clicked;}
 
 }
