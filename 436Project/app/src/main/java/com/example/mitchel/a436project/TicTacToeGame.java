@@ -50,6 +50,7 @@ public class TicTacToeGame extends AppCompatActivity {
         String type = intent.getStringExtra("type");
         if (type.equals("server")) {
             turn(false, game);
+            findViewById(R.id.textView).setBackgroundColor(0x00000000);
             FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(" ");
             marker = "X";
             x = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
@@ -67,6 +68,7 @@ public class TicTacToeGame extends AppCompatActivity {
             o = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
             x = "";
             turn(true, game);
+            findViewById(R.id.textView2).setBackgroundColor(0x00000000);
         }
 
         FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").addValueEventListener(new ValueEventListener() {
@@ -640,6 +642,15 @@ public class TicTacToeGame extends AppCompatActivity {
     }
 
     public void turn(boolean turn, String gameState[][]) {
+        if(turn){
+            findViewById(R.id.textView2).setBackgroundColor(getResources().getColor(R.color.tw__composer_red));
+            findViewById(R.id.textView).setBackgroundColor(0x00000000);
+        }
+        else{
+            findViewById(R.id.textView).setBackgroundColor(getResources().getColor(R.color.tw__composer_red));
+            findViewById(R.id.textView2).setBackgroundColor(0x00000000);
+        }
+
         if (Objects.equals(gameState[0][0], " ")) {
             findViewById(R.id.Button00).setClickable(turn);
         }
