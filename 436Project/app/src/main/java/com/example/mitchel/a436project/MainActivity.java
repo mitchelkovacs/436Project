@@ -35,6 +35,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -99,16 +100,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EditText input = (EditText)findViewById(R.id.input);
 
+                ChatMessage newMessage = new ChatMessage(input.getText().toString(),
+                        FirebaseAuth.getInstance()
+                                .getCurrentUser()
+                                .getDisplayName(), "chat");
                 // Read the input field and push a new instance
                 // of ChatMessage to the Firebase database
                 FirebaseDatabase.getInstance()
-                        .getReference().child("messages")
-                        .push()
-                        .setValue(new ChatMessage(input.getText().toString(),
-                                FirebaseAuth.getInstance()
-                                        .getCurrentUser()
-                                        .getDisplayName(), "chat")
-                        );
+                        .getReference().child("messages")//.push()
+                        .child(Long.toString(newMessage.getMessageTime()))
+                        .setValue(newMessage);
 
                 // Clear the input
                 input.setText("");
@@ -123,8 +124,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(Objects.equals(dataSnapshot.getValue(String.class), "Game Terminated")){
                     gameInSession = false;
-                    //update that message as clicked
-                    FirebaseDatabase.getInstance().getReference().child("messages").child("Challenge").child("clicked").setValue(true);
                 }
                 else{
                     gameInSession = false; //either will be x Wins! or Game ended(when someone leaves the game)
@@ -173,10 +172,10 @@ public class MainActivity extends AppCompatActivity {
                             startGame(acceptButton);
                             model.click();
                             //update that message as clicked
-                            FirebaseDatabase.getInstance().getReference().child("messages").child("Challenge").setValue(model);
+                            FirebaseDatabase.getInstance().getReference().child("messages").child(model.getMessageTime() + "Challenge").setValue(model);
                         }
                     });
-                    FirebaseDatabase.getInstance().getReference().child("messages").child("Challenge").child("clicked").addValueEventListener(new ValueEventListener() {
+                    FirebaseDatabase.getInstance().getReference().child("messages").child(model.getMessageTime() + "Challenge").child("clicked").addValueEventListener(new ValueEventListener() {
 
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -256,16 +255,16 @@ public class MainActivity extends AppCompatActivity {
 
             newChallenge.setSenderAddress(getIpAddress());
 
+
             FirebaseDatabase.getInstance()
                     .getReference().child("messages")
-                    .child("Challenge")
+                    .child(newChallenge.getMessageTime() + "Challenge")
                     .setValue(newChallenge);
 
             //SWITCH VIEW THEN CREATE LISTENER THREAD
             Intent intent = new Intent(getBaseContext(),TicTacToeGame.class);
             intent.putExtra("type","server");
             startActivity(intent);
-
         }
         else if(item.getItemId() == R.id.menu_create_challenge && gameInSession) {
             Toast.makeText(this,
