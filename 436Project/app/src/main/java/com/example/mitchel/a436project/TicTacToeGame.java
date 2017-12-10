@@ -123,10 +123,10 @@ public class TicTacToeGame extends AppCompatActivity {
                     button1.setClickable(false);
                     game[0][0] = dataSnapshot.getValue(String.class);
                     if ((Objects.equals(winner(game), "X")) && (x != "")) {
-                            FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(x + " Wins!");
                     }
                     else if ((Objects.equals(winner(game), "O")) && (o != "")){
-                            FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
+                        FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue(o + " Wins!");
                     }
                     else if (Objects.equals(winner(game), "Draw")) {
                         FirebaseDatabase.getInstance().getReference().child("buttons").child("Winner").child("messageText").setValue("Draw");

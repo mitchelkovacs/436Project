@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(Objects.equals(dataSnapshot.getValue(String.class), " ") ){
-                    gameInSession = true; //because when the person who creates challenge switches screens, they set winner to " "
+                    gameInSession = false; //because when the person who creates challenge switches screens, they set winner to " "
                 }
                 else if(Objects.equals(dataSnapshot.getValue(String.class), "Game Terminated")){
                     gameInSession = false;
